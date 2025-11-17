@@ -7,7 +7,10 @@ def fetch_all_commits(gitlab_url: str,
                       project_id: str, 
                       access_token: str,
                       ref_name: str,
-                      output_json: str) -> list:
+                      output_json: str,
+                      since: str = None,
+                      until: str = None
+                      ) -> list:
     """
     Fetch all commits from a GitLab project using pagination.
 
@@ -38,6 +41,8 @@ def fetch_all_commits(gitlab_url: str,
             "per_page": per_page,
             "page": page,
             "ref_name": ref_name,
+            "since": since,
+            "until": until,
         }
         
         try:
@@ -51,9 +56,9 @@ def fetch_all_commits(gitlab_url: str,
             
             for commit in commits:
                 # Skip merge commits, they have multiple parents
-                parent_ids = commit.get('parent_ids', [])
-                if len(parent_ids) > 1:
-                    continue
+                # parent_ids = commit.get('parent_ids', [])
+                # if len(parent_ids) > 1:
+                #     continue
 
                 # author_email = commit.get("author_email") or "unknown"
                 # commits_per_author[author_email] = commits_per_author.get(author_email, 0) + 1
@@ -73,11 +78,40 @@ def fetch_all_commits(gitlab_url: str,
             break
         
     log_file.write("\n]")
+    logging.info(f"JSON log saved to {output_json}")
     log_file.close()
     return all_commits
 
 
-def group_commits_by_data(commits: list) -> dict:
+def filter_commits_by_author_email(commits: list, author_email: str) -> list:
+    """
+    Returns:
+        dict: 
+    """
+    filter_commits = []
+    for commit in commits:
+        if commit.get("author_email") == author_email:
+            filter_commits.append(commit)
+            
+    return filter_commits
+
+
+def filter_out_merge_commits(commits: list) -> list:
+    """
+    Returns:
+        dict: 
+    """
+    filter_commits = []
+    for commit in commits:
+        parent_ids = commit.get("parent_ids", [])
+        if len(parent_ids) > 1:
+            continue
+        filter_commits.append(commit)
+
+    return filter_commits
+
+
+def build_commit_histogram_by_date(commits: list) -> dict:
     """
     Returns:
         dict: Dictionary with dates as keys and number of commits as values.
@@ -93,7 +127,7 @@ def group_commits_by_data(commits: list) -> dict:
     return dates_freq
 
 
-def get_freqs(dates_freq: dict) -> tuple[list, list]:
+def fill_missing_days_in_histogram(dates_freq: dict) -> tuple[list, list]:
     """
     """
 
