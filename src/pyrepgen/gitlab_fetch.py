@@ -1,14 +1,13 @@
 import logging
 import requests
 import json
-from urllib.parse import quote
-
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 
-def fetch_all_commits(gitlab_url: str, project_id: str, access_token: str) -> list:
+def fetch_all_commits(gitlab_url: str, 
+                      project_id: str, 
+                      access_token: str,
+                      ref_name: str,
+                      output_json: str) -> list:
     """
     Fetch all commits from a GitLab project using pagination.
 
@@ -26,19 +25,19 @@ def fetch_all_commits(gitlab_url: str, project_id: str, access_token: str) -> li
     commits_per_author = {}
 
     # Prepare log file
-    log_filename = "commits.json"
+    log_filename = output_json
     log_file = open(log_filename, "w", encoding="utf-8")
     log_file.write("[\n")
     first_entry = True
     
-    encoded_id = quote(project_id, safe='')
+    encoded_id = project_id.replace("/", "%2F")
     url = f"{gitlab_url}/api/v4/projects/{encoded_id}/repository/commits"
 
     while True:
         params = {
             "per_page": per_page,
             "page": page,
-            "ref_name": "main",
+            "ref_name": ref_name,
         }
         
         try:
@@ -66,7 +65,7 @@ def fetch_all_commits(gitlab_url: str, project_id: str, access_token: str) -> li
                 first_entry = False
 
             # all_commits.extend(commits)
-            logging.info(f"Fetched page {page}: {len(commits)} commits")
+            logging.info(f"Fetched page {page}: {len(all_commits)} commits")
             page += 1
 
         except requests.exceptions.RequestException as e:
@@ -75,12 +74,15 @@ def fetch_all_commits(gitlab_url: str, project_id: str, access_token: str) -> li
         
     log_file.write("\n]")
     log_file.close()
-    # print(commits_per_author)
     return all_commits
+
 
 def group_commits_by_data(commits: list) -> dict:
     """
+    Returns:
+        dict: Dictionary with dates as keys and number of commits as values.
     """
+
     dates_freq = {}
     
     for commit in commits:
@@ -89,6 +91,7 @@ def group_commits_by_data(commits: list) -> dict:
         dates_freq[date] = dates_freq.get(date, 0) + 1
     
     return dates_freq
+
 
 def get_freqs(dates_freq: dict) -> tuple[list, list]:
     """
@@ -109,68 +112,3 @@ def get_freqs(dates_freq: dict) -> tuple[list, list]:
         current += timedelta(days=1)
 
     return all_dates, all_counts
-
-
-def main() -> None:
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="[%(levelname)s]: %(message)s",
-    )
-
-    # Configurations
-    GITLAB_URL   = "https://baltig.infn.it"
-    PROJECT_ID   = "vip/gpio_uvc"
-    GITLAB_TOKEN = ""
-
-    logging.info("Getting information from GitLab API")
-    logging.info(f"GitLab URL: {GITLAB_URL}")
-    logging.info(f"Project ID: {PROJECT_ID}")
-    
-    all_commits = fetch_all_commits(
-        gitlab_url=GITLAB_URL,
-        project_id=PROJECT_ID,
-        access_token=GITLAB_TOKEN,
-    )
-
-    commit_dates = group_commits_by_data(all_commits)
-    all_dates, all_counts = get_freqs(commit_dates)
-    
-    # Plot
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    ax.plot(all_dates, all_counts, color="#7282ee")
-    ax.fill_between(all_dates, all_counts, 0, alpha=0.3, color="#7282ee")
-    ax.set_ylabel("Number of commits")
-    ax.set_ylabel("Number of commits")
-
-    # ax.xaxis.set_major_locator(mdates.MonthLocator())      # tick each month
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-
-
-    # Set y-axis limits
-    ax.set_ylim(0, max(all_counts) + 1)
-
-    # Set x-axis limits
-    # Automatic
-    # ax.set_xlim(all_dates[0], all_dates[-1])
-    # Manual
-    start = datetime(2024, 9, 1)
-    end   = datetime(2024, 10, 24)
-    
-    # print(all_dates)
-    ax.set_xlim(start, end)
-
-    # Rotate x labels
-    # for label in ax.get_xticklabels():
-    #     label.set_rotation(90)
-
-    # Grid
-    ax.grid(True, axis="y", linestyle="-", alpha=0.5)
-
-    plt.show()
-
-    logging.info(f"Total commits fetched: {len(all_commits)}")
-        
-if __name__ == "__main__":
-    main()

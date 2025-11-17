@@ -1,0 +1,8 @@
+gitlab_url: https://baltig.infn.it
+project_id: vip/gpio_uvc
+ref_name: main
+output_json: all_commits.json
+
+
+since: null
+until: null
