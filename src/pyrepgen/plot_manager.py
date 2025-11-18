@@ -5,8 +5,7 @@ from datetime import datetime, timedelta
 import logging
 
 def create_commit_plot(all_dates: list, all_counts: list, 
-                       author: str, email: str
-                       ) -> None:
+                       author: str, email: str) -> None:
     """
     Creates and shows a plot of commits over time.
 
@@ -51,12 +50,21 @@ def create_commit_plot(all_dates: list, all_counts: list,
 
     # Manual limits
     start = datetime(2024, 9, 15).date()
-    end   = datetime(2024, 10, 17).date()
+    end   = datetime(2024, 10, 18).date()
+    # start = datetime.strptime(start, "%Y-%m-%d").date()
+    # end   = datetime.strptime(end, "%Y-%m-%d").date()
     ax.set_xlim(start, end)
     # Automatic
     # ax.set_xlim(all_dates[0], all_dates[-1])
 
     # Vertical lines and marker texts
+    # Find first non zero commit date
+    # for d, count in zip(all_dates, all_counts):
+    #     if count > 0:
+    #         first_commit = d
+    #         break
+
+
     first_commit = datetime(2024, 9, 20).date()
     last_commit = datetime(2024, 10, 14).date()
     ax.axvline(first_commit, color="#7282ee", linewidth=2, alpha=0.5)
@@ -65,33 +73,25 @@ def create_commit_plot(all_dates: list, all_counts: list,
     # First commits text
     label_height = max(all_counts) - 1
     ax.annotate(
-            f"{first_commit.strftime("%b %#d, %Y")}",
-            xy=(first_commit, label_height),
-            xycoords="data",
-            xytext=(8, 0),
-            textcoords="offset points",
-            fontsize=12,
-            color="#333333",
-            fontweight="bold",
-            ha="left",
-            va="bottom",
-            )
-    # ax.text(
-    #     first_commit, 
-    #     label_height,
-    #     f"{first_commit.strftime("%b %#d, %Y")}",
-    #     fontsize=12,
-    #     color="#333333",
-    #     fontweight="bold",
-    #     ha="left",
-    #     va="bottom",
-    # )
+        f"{first_commit.strftime("%b %#d, %Y")}",
+        xy=(first_commit, label_height),
+        xycoords="data",
+        xytext=(4, 0),
+        textcoords="offset points",
+        fontsize=12,
+        color="#333333",
+        fontweight="bold",
+        ha="left",
+        va="bottom",
+    )
 
     # Last commits text
-    ax.text(
-        last_commit,
-        label_height,
+    ax.annotate(
         f"{last_commit.strftime("%b %#d, %Y")}",
+        xy=(last_commit, label_height),
+        xycoords="data",
+        xytext=(4, 0),
+        textcoords="offset points",
         fontsize=12,
         color="#333333",
         fontweight="bold",

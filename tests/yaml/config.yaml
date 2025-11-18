@@ -3,5 +3,12 @@ project_id: vip/gpio_uvc
 ref_name: main
 output_json: all_commits.json
 author_email: cirofabian.bermudezmarquez@ba.infn.it
+
+# GitLab API date filters
 # since: 2024-09-14
 # until: 2024-10-18
+
+# Plot settings
+author: Ciro Bermudez
+x_lim_start: 2024-09-15
+x_lim_end: 2024-10-18

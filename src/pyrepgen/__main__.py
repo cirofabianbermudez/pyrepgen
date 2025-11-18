@@ -134,7 +134,7 @@ def main() -> None:
     logging.info(f"Last commit date: {dates[-1].strftime('%Y-%m-%d')}")
 
     # Generate plot
-    create_commit_plot(dates, counts, author="Ciro Fabian Bermudez Marquez", email=author_email)
+    create_commit_plot(dates, counts, author="Ciro Bermudez", email=author_email)
     
 if __name__ == "__main__":
     main()
