@@ -1,14 +1,20 @@
 gitlab_url: https://baltig.infn.it
-project_id: vip/gpio_uvc
-ref_name: main
+project_id: ignite/asics/IGNITE256  
+ref_name: verification/uvm
 output_json: all_commits.json
 author_email: cirofabian.bermudezmarquez@ba.infn.it
 
 # GitLab API date filters
-# since: 2024-09-14
-# until: 2024-10-18
+# since: 2025-10-01
+# until: 2025-12-01
 
 # Plot settings
 author: Ciro Bermudez
-x_lim_start: 2024-09-15
-x_lim_end: 2024-10-18
+x_lim_start: 2025-11-02
+x_lim_end: 2025-11-14
+
+# y_lim_top: 50
+# y_lim_bottom: 0
+
+marker_left: 2025-11-04
+marker_right: 2025-11-13

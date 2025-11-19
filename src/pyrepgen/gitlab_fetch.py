@@ -132,8 +132,8 @@ def fill_missing_days_in_histogram(dates_freq: dict) -> tuple[list, list]:
     """
 
     date_objs = [datetime.strptime(d, "%Y-%m-%d").date() for d in dates_freq.keys()]
-    start = min(date_objs)
-    end = max(date_objs)
+    start = min(date_objs) + timedelta(days=-1)
+    end = max(date_objs) + timedelta(days=1)
 
     all_dates = []
     all_counts = []

@@ -7,8 +7,15 @@ import sys
 import yaml
 import json
 
-from .gitlab_fetch import fetch_all_commits, filter_out_merge_commits, filter_commits_by_author_email, build_commit_histogram_by_date, fill_missing_days_in_histogram
+from .gitlab_fetch import (
+    fetch_all_commits,
+    filter_out_merge_commits,
+    filter_commits_by_author_email,
+    build_commit_histogram_by_date,
+    fill_missing_days_in_histogram,
+)
 from .plot_manager import create_commit_plot
+
 
 def main() -> None:
 
@@ -16,7 +23,7 @@ def main() -> None:
         prog="pyrepgen",
         description="Generate reports from GitLab/GitHub repositories for verification reports.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="TODO"
+        epilog="TODO",
     )
     parser.add_argument(
         "-c",
@@ -24,7 +31,7 @@ def main() -> None:
         type=Path,
         required=True,
         metavar="FILE",
-        help="YAML configuration file path"
+        help="YAML configuration file path",
     )
     parser.add_argument(
         "-m",
@@ -42,9 +49,9 @@ def main() -> None:
         type=Path,
         required=False,
         metavar="FILE",
-        help="Input JSON file path"
+        help="Input JSON file path",
     )
-    
+
     args = parser.parse_args()
 
     # Set up logging
@@ -53,31 +60,40 @@ def main() -> None:
         format="[%(levelname)s]: %(message)s",
     )
     logging.info("Starting report generation")
-    
+
     # Mode selection logic
     mode = args.mode
     logging.info(f"MODE: {mode}")
     if mode == "read" and not args.input:
         logging.error("Input JSON file must be specified in read mode")
         sys.exit(1)
-    
+
     # Load YAML config
     config_path = args.config
     if config_path.exists() is False:
         logging.error(f"Configuration file {config_path} does not exist")
         sys.exit(1)
     data = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    
-    gitlab_url   = data.get("gitlab_url", "")
-    project_id   = data.get("project_id", "")
-    ref_name     = data.get("ref_name", "main")
-    output_json  = data.get("output_json", "commits.json")
+
+    gitlab_url = data.get("gitlab_url", "")
+    project_id = data.get("project_id", "")
+    ref_name = data.get("ref_name", "main")
+    output_json = data.get("output_json", "commits.json")
     author_email = data.get("author_email", "")
-    since        = data.get("since", None)
-    until        = data.get("until", None)
+    since = data.get("since", None)
+    until = data.get("until", None)
+    author = data.get("author", "Unknown Author")
+    x_lim_start = data.get("x_lim_start", None)
+    x_lim_end = data.get("x_lim_end", None)
+    y_lim_top = data.get("y_lim_top", None)
+    y_lim_bottom = data.get("y_lim_bottom", None)
+    marker_left = data.get("marker_left", None)
+    marker_right = data.get("marker_right", None)
 
     if not gitlab_url or not project_id or not author_email:
-        logging.error("gitlab_url, project_id, and author_email must be specified in the config file")
+        logging.error(
+            "gitlab_url, project_id, and author_email must be specified in the config file"
+        )
         sys.exit(1)
 
     logging.info(f"YAML configuration loaded")
@@ -88,7 +104,14 @@ def main() -> None:
     logging.info(f"Author Email: {author_email}")
     logging.info(f"Since:        {since}")
     logging.info(f"Until:        {until}")
-    
+    logging.info(f"author:       {author}")
+    logging.info(f"x_lim_start:  {x_lim_start}")
+    logging.info(f"x_lim_end:    {x_lim_end}")
+    logging.info(f"y_lim_top:    {y_lim_top}")
+    logging.info(f"y_lim_bottom: {y_lim_bottom}")
+    logging.info(f"marker_left:  {marker_left}")
+    logging.info(f"marker_right: {marker_right}")
+
     # Fetch or read commits
     if args.mode == "read":
         # Read commits from input JSON file
@@ -115,7 +138,7 @@ def main() -> None:
             ref_name=ref_name,
             output_json=output_json,
             since=since,
-            until=until
+            until=until,
         )
 
     # Filter commits
@@ -126,15 +149,26 @@ def main() -> None:
     filter_commits = filter_commits_by_author_email(filter_commits, author_email)
     logging.info(f"Filtering by author email")
     logging.info(f"Extracted: {len(filter_commits)} commits")
-    
+
     histogram = build_commit_histogram_by_date(filter_commits)
-    dates, counts = fill_missing_days_in_histogram(histogram)
-    
-    logging.info(f"First commit date: {dates[0].strftime('%Y-%m-%d')}")
-    logging.info(f"Last commit date: {dates[-1].strftime('%Y-%m-%d')}")
+    all_dates, all_counts = fill_missing_days_in_histogram(histogram)
+
+    logging.info(f"First commit date: {all_dates[0].strftime('%Y-%m-%d')}")
+    logging.info(f"Last commit date: {all_dates[-1].strftime('%Y-%m-%d')}")
 
     # Generate plot
-    create_commit_plot(dates, counts, author="Ciro Bermudez", email=author_email)
-    
+    create_commit_plot(
+        all_dates=all_dates,
+        all_counts=all_counts,
+        email=author_email,
+        author=author,
+        x_lim_start=x_lim_start,
+        x_lim_end=x_lim_end,
+        y_lim_top=y_lim_top,
+        y_lim_bottom=y_lim_bottom,
+        marker_left=marker_left,
+        marker_right=marker_right,
+    )
+
 if __name__ == "__main__":
     main()
