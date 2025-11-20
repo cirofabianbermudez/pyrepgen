@@ -1,30 +1,32 @@
 import logging
 import requests
 import json
+from datetime import datetime, timedelta
 
-def fetch_all_commits_gitlab(config: dict, access_token: str) -> list:
+def fetch_all_commits_github(config: dict, access_token: str) -> list:
 
     # Set up headers and initial parameters
     headers = {
-        "PRIVATE-TOKEN": access_token
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {access_token}",
+        "X-GitHub-Api-Version": "2022-11-28",
     }
+    page = 1
+    per_page = 100
+    all_commits = []
 
     # Prepare log file
     log_file = open(config["output_json"], "w", encoding="utf-8")
     log_file.write("[\n")
     first_entry = True
-    
-    encoded_id = config["project_id"].replace("/", "%2F")
-    url = f"{config["gitlab_url"]}/api/v4/projects/{encoded_id}/repository/commits"
-    page = 1
-    per_page = 100
-    all_commits = []
+
+    url = f"{config["github_url"]}/repos/{config["owner"]}/{config["repo"]}/commits"
 
     while True:
         params = {
             "per_page": per_page,
             "page": page,
-            "ref_name": config["ref_name"],
+            "sha": config["sha"],
             "since": config["since"],
             "until": config["until"],
         }
@@ -45,7 +47,6 @@ def fetch_all_commits_gitlab(config: dict, access_token: str) -> list:
                 json.dump(commit, log_file, indent=2, ensure_ascii=False)
                 first_entry = False
 
-            # all_commits.extend(commits)
             logging.info(f"Fetched page {page}: {len(all_commits)} commits")
             page += 1
 

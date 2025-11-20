@@ -9,13 +9,7 @@ def create_commit_plot(all_dates: list, all_counts: list,
                        x_lim_start: str, x_lim_end: str,
                        y_lim_top: str, y_lim_bottom: str,
                        marker_left: str, marker_right: str) -> None:
-    """
-    Creates and shows a plot of commits over time.
 
-    Args:
-        all_dates (list): List of dates.
-        all_counts (list): List of commit counts corresponding to the dates.
-    """
     # Create figure and axis
     fig, ax = plt.subplots(figsize=(12, 6))
 

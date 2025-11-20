@@ -19,6 +19,13 @@ $plain = Read-Host "PUT YOUR PERSONAL ACCESS TOKEN HERE"
 $env:GITLAB_TOKEN = $plain
 ```
 
+## How to use
+
+```bash
+pyrepgen -c yaml\config_gitlab.yaml -t gitlab 
+pyrepgen -c yaml\config_github.yaml -t github
+```
+
 ## References
 
 [GitLab REST API - Commits API](https://docs.gitlab.com/api/commits/)
