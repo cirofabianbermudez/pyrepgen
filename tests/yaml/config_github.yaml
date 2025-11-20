@@ -11,8 +11,8 @@ repo: nvim
 # ====================== (OPTIONAL) ====================== #
 
 sha: main
-author_email: cirofabian.bermudez@gmail.com
 output_json: github_commits.json
+author_email: cirofabian.bermudez@gmail.com
 # since: 2025-10-01
 # until: 2025-12-01
 
