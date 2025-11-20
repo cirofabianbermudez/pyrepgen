@@ -1,20 +1,28 @@
+# ======================================================== #
+# ================ GENERAL CONFIGURATIONS ================ #
+# ===================== (MANDATORY) ====================== #
+
 gitlab_url: https://baltig.infn.it
 project_id: ignite/asics/IGNITE256  
 ref_name: verification/uvm
 output_json: all_commits.json
 author_email: cirofabian.bermudezmarquez@ba.infn.it
 
-# GitLab API date filters
+# ======================================================== #
+# =============== GITLAB API DATE FILTERS ================ #
+# ====================== (OPTIONAL) ====================== #
+
 # since: 2025-10-01
 # until: 2025-12-01
 
-# Plot settings
-author: Ciro Bermudez
-x_lim_start: 2025-11-02
-x_lim_end: 2025-11-14
+# ======================================================== #
+# ==================== PLOT SETTINGS ===================== #
+# ====================== (OPTIONAL) ====================== #
 
+author: Ciro Bermudez
+# x_lim_start: 2025-11-02
+# x_lim_end: 2025-11-14
 # y_lim_top: 50
 # y_lim_bottom: 0
-
-marker_left: 2025-11-04
-marker_right: 2025-11-13
+# marker_left: 2025-11-04
+# marker_right: 2025-11-13

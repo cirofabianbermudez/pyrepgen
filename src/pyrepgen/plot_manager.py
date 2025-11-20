@@ -62,13 +62,19 @@ def create_commit_plot(all_dates: list, all_counts: list,
     ax.set_xlim(x_lim_start, x_lim_end)
 
     # Vertical lines and marker texts
+    if marker_left is None or marker_right is None:
+        if x_lim_start is None or x_lim_end is None:
+            marker_left = all_dates[0]
+            marker_right = all_dates[-1]
+        else:
+            marker_left = x_lim_start
+            marker_right = x_lim_end
 
-    # Find first non zero commit date
     ax.axvline(marker_left, color="#7282ee", linewidth=5, alpha=0.3)
     ax.axvline(marker_right, color="#7282ee", linewidth=5, alpha=0.3)
+    label_height = y_lim_top * 0.75
 
     # First commits text
-    label_height = y_lim_top * 0.75
     ax.annotate(
         f"{marker_left.strftime("%b %#d, %Y")}",
         xy=(marker_left, label_height),
@@ -113,11 +119,6 @@ def create_commit_plot(all_dates: list, all_counts: list,
             if count > 0:
                 work_days += 1
     
-    logging.info("Generating commit plot")
-    logging.info(f"xlim: {marker_left.strftime('%Y-%m-%d')} to {marker_right.strftime('%Y-%m-%d')}")
-    logging.info(f"y_lim: {y_lim_top} to 0")
-    logging.info(f"Total commits in range: {total_commits}")
-    logging.info(f"Total work days: {work_days}")
 
     ax.text(
         0, 1.03,
@@ -141,6 +142,14 @@ def create_commit_plot(all_dates: list, all_counts: list,
         va="bottom"
     )
 
+    # Legend
     ax.legend(fontsize=14)
+
+    logging.info(f"xlim: {marker_left.strftime('%Y-%m-%d')} to {marker_right.strftime('%Y-%m-%d')}")
+    logging.info(f"y_lim: 0 to {y_lim_top}")
+    logging.info(f"Total commits in range: {total_commits}")
+    logging.info(f"Total work days: {work_days}")
+
     fig.tight_layout()
     plt.show()
+
